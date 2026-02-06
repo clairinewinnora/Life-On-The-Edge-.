@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life on the Edge - Survivor Protocol</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: white;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .landscape-container {
+            width: 100%;
+            max-width: 1024px;
+            height: 520px;
+            background: #0c0c0c;
+            border-radius: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+        .animate-fadeUp { animation: fadeUp 0.4s ease-out forwards; }
+
+        .stat-bar-fill {
+            transition: width 0.7s ease-out;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="landscape-container">
+        <!-- HEADER -->
+        <div class="px-8 py-5 border-b border-white/5 bg-black/40 backdrop-blur-xl flex justify-between items-center z-20">
+            <div class="flex items-center gap-6">
+                <button id="backBtn" class="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-400 hover:text-white hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <div class="flex flex-col">
+                    <h1 class="font-black text-2xl italic tracking-tighter leading-none">LIFE ON THE <span class="text-red-600">EDGE</span></h1>
+                    <span class="text-[9px] font-bold text-gray-600 tracking-[0.4em] uppercase mt-1">Advanced Survivor Protocol v2.0</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-8">
+                <div id="badgeContainer" class="flex gap-4 opacity-60 text-xl">
+                    <span id="badge-forest" class="grayscale">🌲</span>
+                    <span id="badge-mountain" class="grayscale">🏔️</span>
+                    <span id="badge-sea" class="grayscale">⚓</span>
+                    <span id="badge-city" class="grayscale">🏙️</span>
+                </div>
+                <div id="liveIndicator" class="flex items-center gap-2 bg-red-600/10 px-4 py-1.5 rounded-full border border-red-600/20 hidden">
+                    <div class="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Live</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div id="screenContainer" class="flex-grow relative overflow-hidden">
+            
+            <!-- MENU SCREEN -->
+            <div id="menuScreen" class="flex h-full animate-fadeIn">
+                <div class="w-1/2 p-12 flex flex-col justify-center space-y-8">
+                    <div>
+                        <h2 class="text-7xl font-black mb-4 uppercase italic leading-[0.85] tracking-tighter">SIAP <br/> MENANTANG <br/> <span class="text-red-600">MAUT?</span></h2>
+                        <p class="text-gray-500 text-sm max-w-xs leading-relaxed">Keputusan anda menentukan garis tipis antara hidup atau menjadi sejarah.</p>
+                    </div>
+                    <button onclick="showScreen('selectLevel')" class="group relative w-fit px-12 py-5 bg-white text-black font-black rounded-2xl overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-2xl">
+                        <span class="relative z-10 uppercase italic tracking-tighter text-xl">Masuk Zona Bahaya</span>
+                    </button>
+                </div>
+                <div class="w-1/2 relative bg-gradient-to-l from-red-900/10 to-transparent flex items-center justify-center">
+                    <div class="relative p-12 bg-red-600/5 rounded-full border border-red-600/10 animate-pulse">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-red-600/20"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20c2 1.5 6 1.5 8 0"/><path d="m12.5 17-.5-1-.5 1"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SELECT LEVEL SCREEN -->
+            <div id="selectLevelScreen" class="p-10 h-full flex flex-col animate-fadeIn hidden">
+                <h2 class="text-xs font-black text-gray-500 uppercase tracking-[0.4em] mb-8">Pilih Medan Tempur</h2>
+                <div id="levelList" class="grid grid-cols-2 gap-4 flex-grow overflow-y-auto pr-2 custom-scrollbar">
+                    <!-- Levels injected by JS -->
+                </div>
+            </div>
+
+            <!-- PLAYING SCREEN -->
+            <div id="playingScreen" class="h-full flex animate-fadeIn hidden">
+                <!-- Sidebar Stats -->
+                <div class="w-[30%] p-8 bg-black/40 border-r border-white/5 flex flex-col justify-between">
+                    <div class="space-y-8">
+                        <div class="p-4 bg-white/5 rounded-2xl border border-white/5">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span id="currentLevelIcon" class="text-2xl"></span>
+                                <div>
+                                    <h3 id="currentLevelName" class="text-sm font-black italic tracking-tighter uppercase leading-none"></h3>
+                                    <span id="currentDayInfo" class="text-[9px] font-bold text-gray-500 uppercase tracking-widest"></span>
+                                </div>
+                            </div>
+                            <div class="h-1 w-full bg-gray-900 mt-3 rounded-full overflow-hidden">
+                                <div id="dayProgressBar" class="h-full bg-red-600 transition-all"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-5" id="statsContainer">
+                            <!-- Stats injected by JS -->
+                        </div>
+                    </div>
+                    <div class="pt-6 border-t border-white/5">
+                        <div class="text-[10px] font-bold text-yellow-500/50 uppercase tracking-[0.2em] mb-1">Skor Akumulasi</div>
+                        <div id="scoreDisplay" class="text-3xl font-black italic tracking-tighter text-yellow-500">0</div>
+                    </div>
+                </div>
+
+                <!-- Interaction Area -->
+                <div id="interactionArea" class="w-[70%] p-8 flex flex-col relative transition-colors duration-500">
+                    <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px]"></div>
+                    <div id="gameContent" class="relative z-10 h-full flex flex-col items-center justify-center">
+                        <!-- Dynamic Content (Start Day / Event / Feedback) -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- END SCREEN -->
+            <div id="endScreen" class="flex h-full animate-fadeIn hidden">
+                <div id="endVisual" class="w-1/2 flex flex-col items-center justify-center p-12">
+                    <div id="endIconContainer" class="p-10 rounded-[3rem] border">
+                        <!-- Icon injected by JS -->
+                    </div>
+                </div>
+                <div class="w-1/2 p-12 flex flex-col justify-center space-y-8">
+                    <div>
+                        <h2 id="endTitle" class="text-5xl font-black uppercase italic tracking-tighter mb-4 leading-none"></h2>
+                        <p id="endDesc" class="text-gray-500 text-sm leading-relaxed"></p>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <button onclick="showScreen('selectLevel')" id="endPrimaryBtn" class="py-5 font-black rounded-2xl transition-all shadow-2xl uppercase italic tracking-tighter text-lg bg-white text-black"></button>
+                        <button onclick="showScreen('menu')" class="py-4 bg-transparent text-gray-500 font-black rounded-2xl border border-white/5 hover:bg-white/5 transition-all uppercase italic tracking-tighter text-xs tracking-widest">Keluar ke Terminal</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- DECORATIVE FOOTER -->
+        <div class="h-2 bg-gradient-to-r from-red-600/20 via-white/5 to-blue-600/20"></div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const LEVELS = [
+            { id: 0, name: 'Hutan Belantara', icon: '🌲', bg: 'bg-emerald-950', badge: 'forest', days: 5, events: {
+                1: { text: "Beg terlekat di dahan tinggi.", choices: [{ text: "Panjat dahan", health: -5, energy: -20, supplies: 15, narrative: "Berhasil ambil beg, tapi luka-luka." }, { text: "Cari di bawah", health: 0, energy: -5, supplies: 5, narrative: "Hanya sisa air botol ditemui." }] },
+                2: { text: "Hujan lebat turun tiba-tiba.", choices: [{ text: "Bina atap daun", health: 0, energy: -25, supplies: -5, narrative: "Tempat berteduh yang selesa." }, { text: "Gua kecil", health: -15, energy: -5, supplies: 0, narrative: "Gua itu sarang lebah!" }] },
+                3: { text: "Makanan semakin kritikal.", choices: [{ text: "Makan ulat kayu", health: -5, energy: 20, supplies: 0, narrative: "Protein tinggi walau menjijikkan." }, { text: "Tahan lapar", health: -10, energy: -15, supplies: 0, narrative: "Perut anda sangat pedih." }] },
+                4: { text: "Kabut tebal menutupi pandangan.", choices: [{ text: "Guna penanda", health: 0, energy: -10, supplies: -5, narrative: "Anda tidak sesat." }, { text: "Jalan terus", health: -5, energy: -20, supplies: 0, narrative: "Anda berpusing-pusing." }] },
+                5: { text: "Pantai sudah kelihatan!", choices: [{ text: "Turun tebing", health: -15, energy: -15, supplies: 0, narrative: "Hampir jatuh, tapi sampai!" }, { text: "Cari jalan rata", health: 0, energy: -25, supplies: 0, narrative: "Sangat letih tapi selamat." }] }
+            }},
+            { id: 1, name: 'Pegunungan Es', icon: '🏔️', bg: 'bg-slate-900', badge: 'mountain', days: 5, events: {
+                1: { text: "Angin kencang bertiup.", choices: [{ text: "Cari perlindungan", health: 0, energy: -15, supplies: 0, narrative: "Selamat dari angin." }, { text: "Jalan terus", health: -20, energy: -5, supplies: 0, narrative: "Hipotermia ringan." }] },
+                2: { text: "Ribut salji melanda.", choices: [{ text: "Gali lubang salji", health: 5, energy: -30, supplies: 0, narrative: "Letih tapi hangat." }, { text: "Cari pokok", health: -15, energy: -10, supplies: 0, narrative: "Ditiup angin kencang." }] },
+                3: { text: "Oksigen mula menipis.", choices: [{ text: "Jalan perlahan", health: 0, energy: -15, supplies: 0, narrative: "Nafas terjaga." }, { text: "Lari mendaki", health: -10, energy: -30, supplies: 0, narrative: "Hampir pengsan." }] },
+                4: { text: "Rekahan ais di hadapan.", choices: [{ text: "Lompat", health: -5, energy: -10, supplies: 0, narrative: "Berhasil, tapi lutut sakit." }, { text: "Guna tongkat", health: 0, energy: -15, supplies: -5, narrative: "Alatan anda rosak." }] },
+                5: { text: "Stesen riset terlihat!", choices: [{ text: "Meluncur", health: -10, energy: -10, supplies: -10, narrative: "Sampai dengan cepat!" }, { text: "Turun pelan", health: 0, energy: -20, supplies: 0, narrative: "Selamat tapi lemas." }] }
+            }},
+            { id: 2, name: 'Lautan Lepas', icon: '⚓', bg: 'bg-blue-950', badge: 'sea', days: 6, events: {
+                1: { text: "Matahari sangat terik.", choices: [{ text: "Tutup kepala", health: 0, energy: -5, supplies: 0, narrative: "Kepala terlindungi." }, { text: "Biarkan", health: -15, energy: -10, supplies: 0, narrative: "Pening melampau." }] },
+                2: { text: "Hujan turun lebat.", choices: [{ text: "Tampung air", health: 0, energy: -20, supplies: 30, narrative: "Stok air melimpah!" }, { text: "Mandi hujan", health: 10, energy: -5, supplies: 0, narrative: "Badan segar." }] },
+                3: { text: "Bibir pecah-pecah.", choices: [{ text: "Lemak ikan", health: 5, energy: 0, supplies: -5, narrative: "Terasa lebih baik." }, { text: "Air laut", health: -10, energy: 0, supplies: 0, narrative: "Makin pedih." }] },
+                4: { text: "Paus besar muncul.", choices: [{ text: "Diam", health: 0, energy: -10, supplies: 0, narrative: "Hanya lewat." }, { text: "Sentuh", health: -10, energy: -15, supplies: 0, narrative: "Rakit terbalik!" }] },
+                5: { text: "Rakit bocor.", choices: [{ text: "Tambal", health: 0, energy: -15, supplies: -5, narrative: "Bocor berhenti." }, { text: "Abaikan", health: -10, energy: -10, supplies: -10, narrative: "Barang hanyut." }] },
+                6: { text: "Daratan terlihat!", choices: [{ text: "Berenang", health: -10, energy: -30, supplies: 0, narrative: "Sampai di pantai." }, { text: "Tunggu ombak", health: 0, energy: -10, supplies: 0, narrative: "Terdampar pelan." }] }
+            }},
+            { id: 3, name: 'Kota Mati', icon: '🏙️', bg: 'bg-zinc-900', badge: 'city', days: 7, events: {
+                1: { text: "Menjumpai pasaraya kosong.", choices: [{ text: "Cari gudang", health: -5, energy: -15, supplies: 25, narrative: "Makanan tin ditemui!" }, { text: "Cari rak", health: 0, energy: -5, supplies: 5, narrative: "Hanya sisa plastik." }] },
+                2: { text: "Gas bocor di jalanan.", choices: [{ text: "Masker kain", health: -10, energy: -10, supplies: -5, narrative: "Sesak tapi selamat." }, { text: "Jalan jauh", health: 0, energy: -25, supplies: 0, narrative: "Melelahkan sekali." }] },
+                3: { text: "Bangunan tampak akan runtuh.", choices: [{ text: "Lari lintas", health: -15, energy: -10, supplies: 0, narrative: "Tertimpa batu kecil." }, { text: "Tunggu", health: 0, energy: -10, supplies: 0, narrative: "Selamat tapi lambat." }] },
+                4: { text: "Tangki air di atap.", choices: [{ text: "Panjat", health: -5, energy: -25, supplies: 20, narrative: "Air ada walaupun kotor." }, { text: "Abaikan", health: 0, energy: 0, supplies: 0, narrative: "Haus sangat." }] },
+                5: { text: "Hujan asid turun.", choices: [{ text: "Bunker", health: 5, energy: -10, supplies: -5, narrative: "Hangat dan selamat." }, { text: "Halte bus", health: -15, energy: -5, supplies: 0, narrative: "Kulit gatal-gatal." }] },
+                6: { text: "Terperangkap di lif.", choices: [{ text: "Paksa buka", health: -5, energy: -25, supplies: 0, narrative: "Berhasil keluar." }, { text: "Panel", health: 0, energy: -20, supplies: -5, narrative: "Ambil masa lama." }] },
+                7: { text: "Helikopter penyelamat!", choices: [{ text: "Atap", health: -10, energy: -30, supplies: 0, narrative: "Tepat pada waktunya!" }, { text: "Suar", health: 0, energy: -10, supplies: -15, narrative: "Dijemput perlahan." }] }
+            }}
+        ];
+
+        // --- STATE ---
+        let currentScreen = 'menu';
+        let stats = { health: 100, energy: 100, supplies: 100 };
+        let currentLevel = null;
+        let day = 1;
+        let score = 0;
+        let earnedBadges = [];
+
+        // --- ELEMENTS ---
+        const screens = {
+            menu: document.getElementById('menuScreen'),
+            selectLevel: document.getElementById('selectLevelScreen'),
+            playing: document.getElementById('playingScreen'),
+            end: document.getElementById('endScreen')
+        };
+        const backBtn = document.getElementById('backBtn');
+        const liveIndicator = document.getElementById('liveIndicator');
+        const gameContent = document.getElementById('gameContent');
+        const statsContainer = document.getElementById('statsContainer');
+
+        // --- CORE FUNCTIONS ---
+        function showScreen(screenId) {
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            screens[screenId].classList.remove('hidden');
+            currentScreen = screenId;
+
+            backBtn.classList.toggle('hidden', screenId === 'menu');
+            liveIndicator.classList.toggle('hidden', screenId !== 'playing');
+
+            if (screenId === 'selectLevel') renderLevels();
+            if (screenId === 'menu') resetGame();
+        }
+
+        function resetGame() {
+            stats = { health: 100, energy: 100, supplies: 100 };
+            day = 1;
+            score = 0;
+            currentLevel = null;
+        }
+
+        function renderLevels() {
+            const list = document.getElementById('levelList');
+            list.innerHTML = LEVELS.map(lvl => `
+                <button onclick="startLevel(${lvl.id})" class="group relative p-6 rounded-[2rem] border border-white/5 ${lvl.bg} hover:scale-[1.01] transition-all duration-300 text-left overflow-hidden h-32 flex items-center">
+                    <div class="absolute right-0 top-0 p-4 opacity-5 text-8xl transform translate-x-4 -translate-y-4">${lvl.icon}</div>
+                    <div class="relative z-10 flex gap-5 items-center w-full">
+                       <div class="w-16 h-16 shrink-0 rounded-2xl bg-black/40 backdrop-blur-md flex items-center justify-center text-3xl border border-white/10 group-hover:border-white/30">${lvl.icon}</div>
+                       <div class="flex-grow">
+                         <h3 class="text-xl font-black uppercase italic tracking-tighter leading-none mb-1">${lvl.name}</h3>
+                         <div class="flex items-center gap-3">
+                            <span class="text-[9px] font-bold bg-white/10 px-2 py-0.5 rounded uppercase tracking-widest">${lvl.days} Hari</span>
+                            <span class="text-[9px] font-bold text-red-500 uppercase tracking-widest">Resiko Tinggi</span>
+                         </div>
+                       </div>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function startLevel(id) {
+            currentLevel = LEVELS.find(l => l.id === id);
+            resetGame();
+            showScreen('playing');
+            updateUI();
+            renderStartDay();
+        }
+
+        function updateUI() {
+            document.getElementById('currentLevelIcon').innerText = currentLevel.icon;
+            document.getElementById('currentLevelName').innerText = currentLevel.name;
+            document.getElementById('currentDayInfo').innerText = `Hari ${day} / ${currentLevel.days}`;
+            document.getElementById('dayProgressBar').style.width = `${(day / currentLevel.days) * 100}%`;
+            document.getElementById('scoreDisplay').innerText = score;
+            document.getElementById('interactionArea').className = `w-[70%] p-8 flex flex-col relative transition-colors duration-500 ${currentLevel.bg}`;
+
+            statsContainer.innerHTML = `
+                ${renderStat('Kesehatan', stats.health, 'bg-red-600', 'heart')}
+                ${renderStat('Energi', stats.energy, 'bg-yellow-500', 'zap')}
+                ${renderStat('Perbekalan', stats.supplies, 'bg-blue-600', 'box')}
+            `;
+        }
+
+        function renderStat(label, value, color, iconType) {
+            return `
+                <div class="flex items-center gap-3 w-full group">
+                    <div class="flex-grow">
+                        <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">
+                            <span>${label}</span>
+                            <span>${value}%</span>
+                        </div>
+                        <div class="w-full bg-black h-1.5 rounded-full overflow-hidden border border-white/5">
+                            <div class="stat-bar-fill h-full ${color}" style="width: ${value}%"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStartDay() {
+            gameContent.innerHTML = `
+                <button onclick="renderEvent()" class="group flex items-center gap-10 bg-black/50 p-8 rounded-[3rem] border border-white/10 hover:border-white/30 transition-all animate-fadeIn">
+                    <div class="relative p-6 bg-white text-black rounded-full shadow-2xl group-hover:scale-110 transition-transform">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="m7 4 12 8-12 8V4z"/></svg>
+                    </div>
+                    <div class="text-left">
+                        <span class="text-[10px] font-bold text-white/40 uppercase tracking-[0.4em] block mb-2">Sistem Siap</span>
+                        <h4 class="text-4xl font-black italic tracking-tighter leading-none">MULAI HARI ${day}</h4>
+                    </div>
+                </button>
+            `;
+        }
+
+        function renderEvent() {
+            const event = currentLevel.events[day] || currentLevel.events[1];
+            gameContent.innerHTML = `
+                <div class="w-full max-w-xl space-y-10 animate-fadeIn">
+                    <div class="text-center">
+                        <span class="text-[10px] font-black text-red-500 uppercase tracking-[0.5em] mb-4 block">Kontingensi Terdeteksi</span>
+                        <h4 class="text-3xl font-black italic tracking-tighter leading-tight">${event.text}</h4>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        ${event.choices.map((c, i) => `
+                            <button onclick="handleChoice(${day}, ${i})" class="group bg-black/40 hover:bg-white text-white hover:text-black border border-white/10 p-6 rounded-3xl font-black text-sm transition-all uppercase italic text-left active:scale-95">
+                                ${c.text}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleChoice(d, choiceIdx) {
+            const choice = currentLevel.events[d].choices[choiceIdx];
+            
+            stats.health = Math.max(0, Math.min(100, stats.health + (choice.health || 0)));
+            stats.energy = Math.max(0, Math.min(100, stats.energy + (choice.energy || 0)));
+            stats.supplies = Math.max(0, Math.min(100, stats.supplies + (choice.supplies || 0)));
+            score += 125;
+
+            updateUI();
+
+            gameContent.innerHTML = `
+                <div class="text-center space-y-8 max-w-lg animate-fadeUp">
+                    <p class="text-3xl font-black italic leading-tight tracking-tight">"${choice.narrative}"</p>
+                    <div class="flex items-center justify-center gap-3 opacity-30">
+                        <div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce"></div>
+                        <div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                        <div class="w-1.5 h-1.5 bg-white rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                if (stats.health <= 0 || stats.energy <= 0) {
+                    showEnd('GAMEOVER');
+                } else if (day >= currentLevel.days) {
+                    earnedBadges.push(currentLevel.badge);
+                    document.getElementById(`badge-${currentLevel.badge}`).classList.remove('grayscale');
+                    showEnd('WIN');
+                } else {
+                    day++;
+                    updateUI();
+                    renderStartDay();
+                }
+            }, 2500);
+        }
+
+        function showEnd(status) {
+            showScreen('end');
+            const visual = document.getElementById('endVisual');
+            const iconContainer = document.getElementById('endIconContainer');
+            const title = document.getElementById('endTitle');
+            const desc = document.getElementById('endDesc');
+            const primaryBtn = document.getElementById('endPrimaryBtn');
+
+            if (status === 'WIN') {
+                visual.className = "w-1/2 flex flex-col items-center justify-center p-12 bg-yellow-500/5";
+                iconContainer.className = "p-10 rounded-[3rem] border bg-yellow-500/10 border-yellow-500/20";
+                iconContainer.innerHTML = `<svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`;
+                title.innerHTML = "MISI <br/> BERHASIL";
+                desc.innerText = "Analisis taktis: Anda menunjukkan insting bertahan hidup yang luar biasa. Lencana kehormatan diberikan.";
+                primaryBtn.innerText = "Lanjut Medan Tempur";
+                primaryBtn.className = "py-5 font-black rounded-2xl transition-all shadow-2xl uppercase italic tracking-tighter text-lg bg-white text-black hover:bg-yellow-500";
+            } else {
+                visual.className = "w-1/2 flex flex-col items-center justify-center p-12 bg-red-600/5";
+                iconContainer.className = "p-10 rounded-[3rem] border bg-red-600/10 border-red-600/20";
+                iconContainer.innerHTML = `<svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20c2 1.5 6 1.5 8 0"/><path d="m12.5 17-.5-1-.5 1"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></svg>`;
+                title.innerHTML = "MISI <br/> GAGAL";
+                desc.innerText = "Analisis taktis: Kesalahan fatal dikesan. Alam tidak memberikan peluang kedua bagi yang lemah.";
+                primaryBtn.innerText = "Cuba Lagi";
+                primaryBtn.className = "py-5 font-black rounded-2xl transition-all shadow-2xl uppercase italic tracking-tighter text-lg bg-red-600 text-white hover:bg-white hover:text-black";
+            }
+        }
+
+        // --- INIT ---
+        backBtn.addEventListener('click', () => {
+            if (currentScreen === 'playing') showScreen('selectLevel');
+            else if (currentScreen === 'selectLevel') showScreen('menu');
+        });
+
+        window.onload = () => showScreen('menu');
+    </script>
+</body>
+</html>
